@@ -1,0 +1,21 @@
+javac -cp /usr/lib/hadoop/*:/usr/lib/hadoop-mapreduce/* MaxTemperatureMapper.java MaxTemperatureReducer.java MaxTemperature.java -d build -Xlint
+
+jar -cvf maxtemperature.jar -C build/ .
+
+hadoop fs -rm -r /user/cloudera/maxtemp/output
+
+hadoop jar maxtemperature.jar org.myorg.MaxTemperature /user/cloudera/maxtemp/input /user/cloudera/maxtemp/output
+
+hadoop fs -cat /user/cloudera/maxtemp/output/*
+
+
+javac -cp /usr/lib/hadoop/*:/usr/lib/hadoop-mapreduce/* AverageTemperatureMapper.java AverageTemperatureCombiner.java TemperatureAveragingPair.java AverageTemperatureReducer.java AverageTemperatureWithCombiner.java -d build -Xlint
+
+jar -cvf averagetemperature.jar -C build/ .
+
+hadoop fs -rm -r /user/cloudera/maxtemp/output
+
+jar averagetemperature.jar org.myorg.AverageTemperatureWithCombiner /user/cloudera/maxtemp/input /user/cloudera/maxtemp/output
+
+hadoop fs -cat /user/cloudera/maxtemp/output/*
+

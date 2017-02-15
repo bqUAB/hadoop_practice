@@ -1,0 +1,30 @@
+package org.myorg;
+
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Reducer;
+
+import java.io.IOException;
+
+public class AverageTemperatureCombiner 
+  extends Reducer<Text,TemperatureAveragingPair,Text,TemperatureAveragingPair> {
+//  extends Reducer<Text,IntWritable,Text,IntWritable> {
+
+    private TemperatureAveragingPair pair = new TemperatureAveragingPair();
+
+  @Override
+  protected void reduce(Text key, Iterable<TemperatureAveragingPair> values, Context context)
+//  protected void reduce(Text key, Iterable<IntWritable> values, Context context)
+  throws IOException, InterruptedException {
+      int temp = 0;
+      int count = 0;
+        for (TemperatureAveragingPair value : values) {
+//      for (IntWritable value : values) {
+           temp += value.getTemp().get();
+           count += value.getCount().get();
+      }
+      pair.set(temp,count);
+      context.write(key,pair);
+//      int pair ;
+//      context.write(key, avgValue);
+  }
+}

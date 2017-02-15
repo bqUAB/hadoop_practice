@@ -1,0 +1,47 @@
+package org.myorg;
+
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.log4j.Logger;
+
+// vv AverageTemperatureWithCombiner
+public class AverageTemperatureWithCombiner {
+  private static final Logger log = Logger.getLogger(AverageTemperatureWithCombiner.class);
+
+  public static void main(String[] args)
+    throws Exception {
+    if (args.length != 2) {
+      System.err.println("Usage: AverageTemperatureWithCombiner <input path> " +
+          "<output path>");
+      System.exit(-1);
+    }
+
+    Job job = Job.getInstance(new Configuration());
+    job.setJarByClass(AverageTemperatureWithCombiner.class);
+    doMapReduce(job, args[0], AverageTemperatureMapper.class, "combiner-average", "CombinerAverage", AverageTemperatureReducer.class, TemperatureAveragingPair.class);
+  }
+
+  private static void doMapReduce(Job job, String path, Class<?extends Mapper> mapperClass, String outPath, String jobName, Class<?extends Reducer> reducerClass, Class outputClass) 
+    throws Exception {
+        try {
+            job.setJobName(jobName);
+            FileInputFormat.addInputPath(job, new Path(path));
+            FileOutputFormat.setOutputPath(job, new Path(outPath));
+            job.setMapperClass(mapperClass);
+            job.setReducerClass(reducerClass);
+            job.setOutputKeyClass(Text.class);
+            job.setOutputValueClass(outputClass);
+            System.exit(job.waitForCompletion(true) ? 0 : 1);
+        } catch (Exception e) {
+            log.error("Error running MapReduce Job",e);
+        }
+    }
+}

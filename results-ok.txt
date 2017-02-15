@@ -1,0 +1,4 @@
+[cloudera@quickstart ch02]$ hadoop fs -cat /user/cloudera/combiner-average/*
+1901	467
+1902	-541
+
